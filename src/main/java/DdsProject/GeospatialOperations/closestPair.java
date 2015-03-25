@@ -1,4 +1,4 @@
-package DdsProject.GeospatialOperations;
+package geospatial.convexHull;
 
 import org.apache.spark.api.java.*;
 import org.apache.spark.api.java.function.*;
@@ -84,7 +84,7 @@ class Pair implements Serializable
   {  return point1 + "-" + point2 + " : " + distance;  }
 }
 
-public class closestPair 
+public class App 
 {
 	public static void sortByX(List<? extends Point> points)
 	  {
@@ -208,7 +208,7 @@ public class closestPair
         
         SparkConf conf = new SparkConf().setAppName("App").setMaster("local");
 		JavaSparkContext sc = new JavaSparkContext(conf);		
-		JavaRDD<String> lines = sc.textFile("/home/worker/Demo.csv");
+		JavaRDD<String> lines = sc.textFile("/home/udaiarora/Downloads/arealm.csv.bz2");
 		System.out.println("RDD created from external file...calling local function..............");
 		JavaRDD<Point> linelengths = lines.mapPartitions(new FlatMapFunction<Iterator<String>,Point>(){
 		private static final long serialVersionUID = 1L;
@@ -224,7 +224,7 @@ public class closestPair
 				{
 					String strTemp = s.next();
 					String[] fields=strTemp.split(",");
-					Point x=new Point(Double.parseDouble(fields[1]),Double.parseDouble(fields[2]));
+					Point x=new Point(Double.parseDouble(fields[2]),Double.parseDouble(fields[3]));
 					Coordinate coord = new Coordinate(Double.parseDouble(fields[1]),Double.parseDouble(fields[2]));
 					ActiveCoords.add(coord);
 					points.add(x);
@@ -258,7 +258,7 @@ public class closestPair
 		});
 		
 		System.out.println("Local Closest Pair Done....................................");
-		linelengths.saveAsTextFile("/home/worker/mapAftermath");
+		linelengths.saveAsTextFile("/home/udaiarora/Downloads/a1");
 		JavaRDD<Point> ReduceList = linelengths.repartition(1);
 		JavaRDD<Point> FinalList = ReduceList.mapPartitions(new FlatMapFunction<Iterator<Point>, Point>()
 		{
@@ -277,9 +277,8 @@ public class closestPair
 				return finalPoints;
 			}
 		});
-		FinalList.saveAsTextFile("/home/worker/Final");
+		FinalList.saveAsTextFile("/home/udaiarora/Downloads/a2");
 		System.out.println("The closest pair of points is...");
 		sc.close();
     }
 }
-
