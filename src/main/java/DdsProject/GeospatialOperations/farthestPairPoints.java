@@ -78,13 +78,13 @@ public class farthestPairPoints
 {
 	public static void main(String[] args) throws ClassNotFoundException
 	{
-		SparkConf conf = new SparkConf().setAppName("App");
+		SparkConf conf = new SparkConf().setAppName("App").setMaster("spark://10.0.0.4:7077");
 		JavaSparkContext sc = new JavaSparkContext(conf);
-		JavaRDD<String> lines = sc.textFile("/home/udaiarora/Downloads/Test/ct.csv");
-		JavaRDD<Coordinate> MappedPolygons = lines.mapPartitions(new LocalHull());
-		MappedPolygons.saveAsTextFile("/home/udaiarora/Downloads/a1");
+		JavaRDD<String> lines = sc.textFile("hdfs://master:54310/content/FarthestPairandClosestPairTestData.csv");
+		JavaRDD<Coordinate> MappedPolygons = lines.mapPartitions(new localHull());
+		MappedPolygons.saveAsTextFile("hdfs://master:54310/content/FarthestPairPartial");
 		JavaRDD<Coordinate> ReduceList = MappedPolygons.repartition(1);
-		JavaRDD<Coordinate> FinalList = ReduceList.mapPartitions(new GlobalHull());
+		JavaRDD<Coordinate> FinalList = ReduceList.mapPartitions(new globalHull());
 		//Farthest Pair of Points
 		List<Coordinate> convexHullList=FinalList.collect();
 		Coordinate p1,p2;
@@ -107,7 +107,7 @@ public class farthestPairPoints
 		p1p2.add(p1);
 		p1p2.add(p2);
 		JavaRDD<Coordinate> finalpair=sc.parallelize(p1p2);
-		finalpair.saveAsTextFile("/home/udaiarora/Downloads/a2");
+		finalpair.saveAsTextFile("hdfs://master:54310/content/FarthestPairFinalResults");
 		sc.close();
 	}
 }

@@ -75,14 +75,14 @@ public class convexHull
 {
 	public static void main(String[] args) throws ClassNotFoundException
 	{
-		SparkConf conf = new SparkConf().setAppName("App");
+		SparkConf conf = new SparkConf().setAppName("App").setMaster("spark://10.0.0.4:7077");;
 		JavaSparkContext sc = new JavaSparkContext(conf);
-		JavaRDD<String> lines = sc.textFile("/home/udaiarora/Downloads/Test/ct.csv");
+		JavaRDD<String> lines = sc.textFile("hdfs://master:54310/content/ConvexHullTestData.csv");
 		JavaRDD<Coordinate> MappedPolygons = lines.mapPartitions(new LocalHull());
-		MappedPolygons.saveAsTextFile("/home/udaiarora/Downloads/a1");
+		MappedPolygons.saveAsTextFile("hdfs://master:54310/content/ConvexHullPartialResults");
 		JavaRDD<Coordinate> ReduceList = MappedPolygons.repartition(1);
 		JavaRDD<Coordinate> FinalList = ReduceList.mapPartitions(new GlobalHull());
-		FinalList.saveAsTextFile("/home/udaiarora/Downloads/a2");
+		FinalList.saveAsTextFile("hdfs://master:54310/content/ConvexHullResults");
 		sc.close();
 	}
 }

@@ -5,7 +5,6 @@ import org.apache.spark.api.java.function.*;
 import org.apache.spark.broadcast.Broadcast;
 import org.apache.spark.SparkConf;
 import scala.Tuple2;
-import java.io.*;
 import java.util.*;
 
 
@@ -15,45 +14,29 @@ public class spatialJoinQuery {
 	public static void main(String[] args) 
 	{
 		
-		PrintWriter writer = null;
+		
 		String[] broad;
 		
-		try{
-		writer = new PrintWriter("/home/karthik/Desktop/out.txt","UTF-8");
-		}
-		catch(Exception E){
-			System.out.println(E);
-		}
-		
-		SparkConf conf=new SparkConf().setAppName("operation6").setMaster("spark://ubuntu:7077");
+		SparkConf conf=new SparkConf().setAppName("operation6").setMaster("spark://10.0.0.4:7077");
 		JavaSparkContext sc=new JavaSparkContext(conf);
-		sc.addJar("/home/karthik/Desktop/operation6.jar");
-		Scanner s=null;
-		try 
-		{
-			s = new Scanner(new File("/home/karthik/Desktop/bid.csv"));
-		} 
-		catch (FileNotFoundException e) 
-		{
-			
-			e.printStackTrace();
-		}
-		 	
-		ArrayList<String> callSignList = new ArrayList<String>();
-		   while (s.hasNextLine()) 
-		    {
-		      callSignList.add(s.nextLine());
-		    }
-		   String[] st;
-		   st=callSignList.toArray(new String[0]);
+		//sc.addJar("/home/karthik/Desktop/operation6.jar");
+		JavaRDD<String> l2=sc.textFile("hdfs://master:54310/content/JoinQueyTestData.csv");
+		List<String> s=l2.collect();
+		String[] st= s.toArray(new String[0]);
+		
 		Broadcast<String[]> br=sc.broadcast(st);
 		broad=br.value();
 	    
 	   final String ar[]=broad;
 	   
 	    System.out.println(ar[0]);
-		JavaRDD<String> l2=sc.textFile("/home/karthik/Desktop/aid.csv");
+		l2=sc.textFile("hdfs://master:54310/content/JoinQueryPartial");
 		JavaPairRDD<String,String> j=l2.mapToPair(new PairFunction<String,String,String>(){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			public Tuple2<String, String> call(String data)
 			{
 				
@@ -85,18 +68,10 @@ public class spatialJoinQuery {
 			
 				return new Tuple2<String, String>(aid,x);
 			}
-		});
+		}).repartition(1);
 		
-	
-		List <Tuple2<String, String>> output=j.collect();
-		for(Tuple2<?,?> tuple: output)
-		{
-			System.out.println(tuple._1()+""+tuple._2());
-			String a=(String) (tuple._1()+""+tuple._2());
-			writer.println(a);
-		}
-	
-		writer.close();
-		sc.stop();
+	    j.saveAsTextFile("hdfs://master:54310/content/JoinQueryResults");
+	    sc.stop();
+	    sc.close();
 	}
 }
