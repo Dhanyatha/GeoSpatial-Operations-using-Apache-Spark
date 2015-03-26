@@ -262,6 +262,11 @@ public class closestPair
 		JavaRDD<Point> ReduceList = linelengths.repartition(1);
 		JavaRDD<Point> FinalList = ReduceList.mapPartitions(new FlatMapFunction<Iterator<Point>, Point>()
 		{
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			public Iterable<Point> call(Iterator<Point> givListIter)
 			{
 				List<Point> points=new ArrayList<Point>();

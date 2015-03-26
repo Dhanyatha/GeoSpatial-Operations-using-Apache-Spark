@@ -1,4 +1,5 @@
-package geospatial.convexHull;
+package DdsProject.GeospatialOperations;
+
 import org.apache.spark.api.java.*;
 import org.apache.spark.api.java.function.*;
 import org.apache.spark.SparkConf;
@@ -17,6 +18,11 @@ import com.vividsolutions.jts.operation.union.CascadedPolygonUnion;
 class LocalUnion implements FlatMapFunction<Iterator<String>, Geometry>, Serializable
 {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public Iterable<Geometry> call(Iterator<String> s)
 	{	
 		List<Geometry> ActivePolygons = new ArrayList<Geometry>();
@@ -57,6 +63,11 @@ class LocalUnion implements FlatMapFunction<Iterator<String>, Geometry>, Seriali
 
 class GlobalUnion implements FlatMapFunction<Iterator<Geometry>, Geometry>, Serializable
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public Iterable<Geometry> call(Iterator<Geometry> givListIter)
 	{	
 		List<Geometry> polList = new ArrayList<Geometry>();
@@ -82,7 +93,7 @@ class GlobalUnion implements FlatMapFunction<Iterator<Geometry>, Geometry>, Seri
 	}
 }
 
-public class App
+public class polygonUnion
 {
 	public static void main(String[] args) throws ClassNotFoundException
 	{
@@ -96,5 +107,6 @@ public class App
 		JavaRDD<Geometry> ReduceList = MappedPolygons.repartition(1);
 		JavaRDD<Geometry> FinalList = ReduceList.mapPartitions(new GlobalUnion());
 		FinalList.saveAsTextFile("/home/udaiarora/Downloads/c2");
+		sc.close();
 	}
 }

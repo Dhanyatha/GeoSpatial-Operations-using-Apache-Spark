@@ -1,7 +1,4 @@
-
-
-
-package geospatial.convexHull;
+package DdsProject.GeospatialOperations;
 import org.apache.spark.api.java.*;
 import org.apache.spark.api.java.function.*;
 import org.apache.spark.SparkConf;
@@ -74,7 +71,7 @@ class GlobalHull implements FlatMapFunction<Iterator<Coordinate>, Coordinate>, S
 		return a;
 	}
 }
-public class App
+public class convexHull
 {
 	public static void main(String[] args) throws ClassNotFoundException
 	{
