@@ -20,7 +20,8 @@ public class spatialJoinQuery {
 		SparkConf conf=new SparkConf().setAppName("operation6").setMaster("spark://10.0.0.4:7077");
 		JavaSparkContext sc=new JavaSparkContext(conf);
 		//sc.addJar("/home/karthik/Desktop/operation6.jar");
-		JavaRDD<String> l2=sc.textFile("hdfs://master:54310/content/JoinQueyTestData.csv");
+		//Reading First file
+		JavaRDD<String> l2=sc.textFile("hdfs://master:54310/content/file1.csv");
 		List<String> s=l2.collect();
 		String[] st= s.toArray(new String[0]);
 		
@@ -30,7 +31,8 @@ public class spatialJoinQuery {
 	   final String ar[]=broad;
 	   
 	    System.out.println(ar[0]);
-		l2=sc.textFile("hdfs://master:54310/content/JoinQueryPartial");
+	    //Reading the second file
+		l2=sc.textFile("hdfs://master:54310/content/file2.csv");
 		JavaPairRDD<String,String> j=l2.mapToPair(new PairFunction<String,String,String>(){
 			/**
 			 * 
