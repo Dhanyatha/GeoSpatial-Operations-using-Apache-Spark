@@ -1,4 +1,4 @@
-package geospatial.convexHull;
+package DdsProject.GeospatialOperations;
 
 import org.apache.spark.api.java.*;
 import org.apache.spark.api.java.function.*;
@@ -84,7 +84,7 @@ class Pair implements Serializable
   {  return point1 + "-" + point2 + " : " + distance;  }
 }
 
-public class App 
+public class closestPair 
 {
 	public static void sortByX(List<? extends Point> points)
 	  {
