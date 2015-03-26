@@ -206,10 +206,10 @@ public class closestPair
     {
         System.out.println( "Starting the main method!" );
         //SparkConf conf = new SparkConf().setAppName("App").setMaster("local");
-        SparkConf conf = new SparkConf().setAppName("App").setMaster("spark://10.0.0.4:7077");
+        SparkConf conf = new SparkConf().setAppName("App").setMaster(args[0]);
 		JavaSparkContext sc = new JavaSparkContext(conf);	
 		//JavaRDD<String> lines = sc.textFile("/home/worker/FarthestPairandClosestPairTestData.csv");
-		JavaRDD<String> lines = sc.textFile("hdfs://master:54310/content/FarthestPairandClosestPairTestData.csv");
+		JavaRDD<String> lines = sc.textFile(args[1]);
 		System.out.println("RDD created from external file...calling local function..............");
 		JavaRDD<Point> linelengths = lines.mapPartitions(new FlatMapFunction<Iterator<String>,Point>(){
 		private static final long serialVersionUID = 1L;
@@ -260,7 +260,7 @@ public class closestPair
 		
 		System.out.println("Local Closest Pair Done....................................");
 		//linelengths.saveAsTextFile("/home/worker/ClosestPairPartial");
-		linelengths.saveAsTextFile("hdfs://master:54310/content/ClosestPairPartial");
+		linelengths.saveAsTextFile(args[2]);
 		JavaRDD<Point> ReduceList = linelengths.repartition(1);
 		JavaRDD<Point> FinalList = ReduceList.mapPartitions(new FlatMapFunction<Iterator<Point>, Point>()
 		{
@@ -284,7 +284,7 @@ public class closestPair
 				return finalPoints;
 			}
 		});
-		FinalList.saveAsTextFile("hdfs://master:54310/content/ClosestPairResults");
+		FinalList.saveAsTextFile(args[3]);
 		//FinalList.saveAsTextFile("/home/worker/ClosestPairResults");
 		sc.close();
     }

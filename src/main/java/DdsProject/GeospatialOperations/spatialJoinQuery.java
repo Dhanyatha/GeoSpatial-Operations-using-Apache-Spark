@@ -17,11 +17,11 @@ public class spatialJoinQuery {
 		
 		String[] broad;
 		
-		SparkConf conf=new SparkConf().setAppName("operation6").setMaster("spark://10.0.0.4:7077");
+		SparkConf conf=new SparkConf().setAppName("operation6").setMaster(args[0]);
 		JavaSparkContext sc=new JavaSparkContext(conf);
 		//sc.addJar("/home/karthik/Desktop/operation6.jar");
 		//Reading First file
-		JavaRDD<String> l2=sc.textFile("hdfs://master:54310/content/file1.csv");
+		JavaRDD<String> l2=sc.textFile(args[1]);
 		List<String> s=l2.collect();
 		String[] st= s.toArray(new String[0]);
 		
@@ -32,7 +32,7 @@ public class spatialJoinQuery {
 	   
 	    System.out.println(ar[0]);
 	    //Reading the second file
-		l2=sc.textFile("hdfs://master:54310/content/file2.csv");
+		l2=sc.textFile(args[2]);
 		JavaPairRDD<String,String> j=l2.mapToPair(new PairFunction<String,String,String>(){
 			/**
 			 * 
@@ -72,7 +72,7 @@ public class spatialJoinQuery {
 			}
 		}).repartition(1);
 		
-	    j.saveAsTextFile("hdfs://master:54310/content/JoinQueryResults");
+	    j.saveAsTextFile(args[3]);
 	    sc.stop();
 	    sc.close();
 	}

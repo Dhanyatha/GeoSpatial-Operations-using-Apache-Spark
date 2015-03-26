@@ -12,9 +12,9 @@ public class spatialRangeQuery
 	public static void main( String[] args )
     {
 		//Double[] broad;
-		SparkConf conf= new SparkConf().setAppName("App").setMaster("spark://10.0.0.4:7077");
+		SparkConf conf= new SparkConf().setAppName("App").setMaster(args[0]);
     	JavaSparkContext sc = new JavaSparkContext(conf);
-    	JavaRDD<String> rects = sc.textFile("hdfs://master:54310/content/RangeQueryTestData.csv");
+    	JavaRDD<String> rects = sc.textFile(args[1]);
     	String result=rects.first();
     	String[] windowArray = result.split(",");
     	Double[] window = new Double[4];
@@ -60,7 +60,7 @@ public class spatialRangeQuery
     	Broadcast<Double[]> br = sc.broadcast(window);
     	final Double[] broad = br.value();
     	
-    	rects = sc.textFile("hdfs://master:54310/content/rectangles.csv");
+    	rects = sc.textFile(args[2]);
     	JavaPairRDD<String, String> enclosed = rects.mapToPair(new PairFunction<String, String, String>()
     			{
 
@@ -127,7 +127,7 @@ public class spatialRangeQuery
     	catch(IOException e){}
     	*/
     	JavaRDD<String> op = sc.parallelize(srdd).repartition(1);
-    	op.saveAsTextFile("hdfs://master:54310/content/RangeQueryResults");
+    	op.saveAsTextFile(args[3]);
     	
     	
         //System.out.println(output.get(0));

@@ -80,11 +80,11 @@ public class App
 {
 	public static void main(String[] args) throws ClassNotFoundException
 	{
-		SparkConf conf = new SparkConf().setAppName("App").setMaster("spark://10.0.0.4:7077");
+		SparkConf conf = new SparkConf().setAppName("App").setMaster(args[0]);
 		JavaSparkContext sc = new JavaSparkContext(conf);
-		JavaRDD<String> lines = sc.textFile("hdfs://master:54310/content/FarthestPairandClosestPairTestData.csv");
+		JavaRDD<String> lines = sc.textFile(args[1]);
 		JavaRDD<Coordinate> MappedPolygons = lines.mapPartitions(new localHull());
-		MappedPolygons.saveAsTextFile("hdfs://master:54310/content/FarthestPairPartial");
+		MappedPolygons.saveAsTextFile(args[2]);
 		JavaRDD<Coordinate> ReduceList = MappedPolygons.repartition(1);
 		JavaRDD<Coordinate> FinalList = ReduceList.mapPartitions(new globalHull());
 
@@ -122,7 +122,7 @@ public class App
 		p1p2.add(p1);
 		p1p2.add(p2);
 		JavaRDD<Coordinate> finalpair=sc.parallelize(p1p2);
-		finalpair.saveAsTextFile("hdfs://master:54310/content/FarthestPairFinalResults");
+		finalpair.saveAsTextFile(args[3]);
 		sc.close();
 	}
 }

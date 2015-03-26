@@ -97,16 +97,16 @@ public class polygonUnion
 {
 	public static void main(String[] args) throws ClassNotFoundException
 	{
-		SparkConf conf = new SparkConf().setAppName("App").setMaster("spark://10.0.0.4:7077");
+		SparkConf conf = new SparkConf().setAppName("App").setMaster(args[0]);
 		
 		JavaSparkContext sc = new JavaSparkContext(conf);
 				
-		JavaRDD<String> lines = sc.textFile("hdfs://master:54310/content/PolygonUnionTestData.csv");
+		JavaRDD<String> lines = sc.textFile(args[1]);
 		JavaRDD<Geometry> MappedPolygons = lines.mapPartitions(new LocalUnion());
-		MappedPolygons.saveAsTextFile("hdfs://master:54310/content/PolygonUnionPartial");
+		MappedPolygons.saveAsTextFile(args[2]);
 		JavaRDD<Geometry> ReduceList = MappedPolygons.repartition(1);
 		JavaRDD<Geometry> FinalList = ReduceList.mapPartitions(new GlobalUnion());
-		FinalList.saveAsTextFile("hdfs://master:54310/content/PolygonUnionResults");
+		FinalList.saveAsTextFile(args[3]);
 		sc.close();
 	}
 }
