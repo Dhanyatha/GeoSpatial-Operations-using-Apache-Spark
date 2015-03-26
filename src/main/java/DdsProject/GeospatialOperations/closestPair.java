@@ -3,7 +3,6 @@ package DdsProject.GeospatialOperations;
 import org.apache.spark.api.java.*;
 import org.apache.spark.api.java.function.*;
 import org.apache.spark.SparkConf;
-
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
@@ -11,7 +10,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
-
 import com.vividsolutions.jts.algorithm.ConvexHull;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -21,33 +19,35 @@ class Point implements Comparable<Point>,Serializable
 {
 	/****/
 	private static final long serialVersionUID = 1L;
-	public final double x, y;
+	public final double xco, yco;
 	
 	public Point(double x,double y)
 	{
-		this.x=x;
-		this.y=y;
+		this.xco=x;
+		this.yco=y;
 	}
-
 	public int compareTo(Point p) {
-		if (this.x == p.x) {
-			return (int) (this.y - p.y);
+		if (this.xco == p.xco) {
+			return (int) (this.yco - p.yco);
 		} else {
-			return (int)(this.x - p.x);
+			return (int)(this.xco - p.xco);
 		}
 	} 
-	public String toString() {
-		return "("+x + "," + y+")";
+	public String toString() 
+	{
+		return "("+xco + "," + yco+")";
 	}
 	@Override
-	public boolean equals(Object o){
-		  if(o instanceof Point){
+	public boolean equals(Object o)
+	{
+		  if(o instanceof Point)
+		  {
 			  Point toCompare = (Point) o;
-		    return ((this.x==toCompare.x))&&((this.y==toCompare.y));
+		    return ((this.xco==toCompare.xco))&&((this.yco==toCompare.yco));
 		  }
 		  return false;
-		}
 	}
+}
 
 class Pair implements Serializable
 {
@@ -63,7 +63,7 @@ class Pair implements Serializable
   {
     this.point1 = point1;
     this.point2 = point2;
-    calcDistance();
+    calculateDistance();
   }
 
   public void update(Point point1, Point point2, double distance)
@@ -73,11 +73,11 @@ class Pair implements Serializable
     this.distance = distance;
   }
 
-  public void calcDistance()
+  public void calculateDistance()
   {  
-	  double xdist = point2.x - point1.x;
-	  double ydist = point2.y - point1.y;
-	  this.distance =   Math.hypot(xdist, ydist); 
+	  double xdistance = point2.xco - point1.xco;
+	  double ydistance = point2.yco - point1.yco;
+	  this.distance =   Math.hypot(xdistance, ydistance); 
   }
 
   public String toString()
@@ -86,14 +86,14 @@ class Pair implements Serializable
 
 public class closestPair 
 {
-	public static void sortByX(List<? extends Point> points)
+	public static void sortByXcoordinate(List<? extends Point> points)
 	  {
 	    Collections.sort(points, new Comparator<Point>() {
 	        public int compare(Point point1, Point point2)
 	        {
-	          if (point1.x < point2.x)
+	          if (point1.xco < point2.xco)
 	            return -1;
-	          if (point1.x > point2.x)
+	          if (point1.xco > point2.xco)
 	            return 1;
 	          return 0;
 	        }
@@ -101,14 +101,14 @@ public class closestPair
 	    );
 	  }
 	 
-	  public static void sortByY(List<? extends Point> points)
+	  public static void sortByYcoordinate(List<? extends Point> points)
 	  {
 	    Collections.sort(points, new Comparator<Point>() {
 	        public int compare(Point point1, Point point2)
 	        {
-	          if (point1.y < point2.y)
+	          if (point1.yco < point2.yco)
 	            return -1;
-	          if (point1.y > point2.y)
+	          if (point1.yco > point2.yco)
 	            return 1;
 	          return 0;
 	        }
@@ -116,82 +116,82 @@ public class closestPair
 	    );
 	  }
 	 
-	  public static double distance(Point p1, Point p2)
+	  public static double pairdistance(Point p1, Point p2)
 	  {
-	    double xdist = p2.x - p1.x;
-	    double ydist = p2.y - p1.y;
-	    return Math.hypot(xdist, ydist);
+	    double xdistance = p2.xco - p1.xco;
+	    double ydistance = p2.yco - p1.yco;
+	    return Math.hypot(xdistance, ydistance);
 	  }
 	 
-	  public static Pair divideAndConquer(List<? extends Point> points)
+	  public static Pair divideAndConquerBase(List<? extends Point> listOfPoints)
 	  {
-	    List<Point> pointsSortedByX = new ArrayList<Point>(points);
-	    sortByX(pointsSortedByX);
-	    List<Point> pointsSortedByY = new ArrayList<Point>(points);
-	    sortByY(pointsSortedByY);
-	    return divideAndConquer(pointsSortedByX, pointsSortedByY);
+	    List<Point> pointsSortedByXcoordinate = new ArrayList<Point>(listOfPoints);
+	    sortByXcoordinate(pointsSortedByXcoordinate);
+	    List<Point> pointsSortedByYcoordinate = new ArrayList<Point>(listOfPoints);
+	    sortByYcoordinate(pointsSortedByYcoordinate);
+	    return divideAndConquerRecursionMethod(pointsSortedByXcoordinate, pointsSortedByYcoordinate);
 	  }
-	  public static Pair bruteForce(List<? extends Point> points)
+	  public static Pair bruteForceApproach(List<? extends Point> listOfPoints)
 	  {
-	    int numPoints = points.size();
-	    if (numPoints < 2)
+	    int numOfPoints = listOfPoints.size();
+	    if (numOfPoints < 2)
 	      return null;
-	    Pair pair = new Pair(points.get(0), points.get(1));
-	    if (numPoints > 2)
+	    Pair bruteForcePair = new Pair(listOfPoints.get(0), listOfPoints.get(1));
+	    if (numOfPoints > 2)
 	    {
-	      for (int i = 0; i < numPoints - 1; i++)
+	      for (int i = 0; i < numOfPoints - 1; i++)
 	      {
-	        Point point1 = points.get(i);
-	        for (int j = i + 1; j < numPoints; j++)
+	        Point point1 = listOfPoints.get(i);
+	        for (int j = i + 1; j < numOfPoints; j++)
 	        {
-	          Point point2 = points.get(j);
-	          double distance = distance(point1, point2);
-	          if (distance < pair.distance)
-	            pair.update(point1, point2, distance);
+	          Point point2 = listOfPoints.get(j);
+	          double distance = pairdistance(point1, point2);
+	          if (distance < bruteForcePair.distance)
+	        	  bruteForcePair.update(point1, point2, distance);
 	        }
 	      }
 	    }
-	    return pair;
+	    return bruteForcePair;
 	  }
 	 
-	  private static Pair divideAndConquer(List<? extends Point> pointsSortedByX, List<? extends Point> pointsSortedByY)
+	  private static Pair divideAndConquerRecursionMethod(List<? extends Point> pointsSortedByXcoordinate, List<? extends Point> pointsSortedByYcoordinate)
 	  {
-	    int numPoints = pointsSortedByX.size();
-	    if (numPoints <= 3)
-	      return bruteForce(pointsSortedByX);
+	    int numOfPoints = pointsSortedByXcoordinate.size();
+	    if (numOfPoints <= 3)
+	      return bruteForceApproach(pointsSortedByXcoordinate);
 	 
-	    int dividingIndex = numPoints >>> 1;
-	    List<? extends Point> leftOfCenter = pointsSortedByX.subList(0, dividingIndex);
-	    List<? extends Point> rightOfCenter = pointsSortedByX.subList(dividingIndex, numPoints);
+	    int dividingPoint = numOfPoints >>> 1;
+	    List<? extends Point> leftPart = pointsSortedByXcoordinate.subList(0, dividingPoint);
+	    List<? extends Point> rightPart = pointsSortedByXcoordinate.subList(dividingPoint, numOfPoints);
 	 
-	    List<Point> tempList = new ArrayList<Point>(leftOfCenter);
-	    sortByY(tempList);
-	    Pair closestPair = divideAndConquer(leftOfCenter, tempList);
+	    List<Point> temporaryList = new ArrayList<Point>(leftPart);
+	    sortByYcoordinate(temporaryList);
+	    Pair closestPair = divideAndConquerRecursionMethod(leftPart, temporaryList);
 	 
-	    tempList.clear();
-	    tempList.addAll(rightOfCenter);
-	    sortByY(tempList);
-	    Pair closestPairRight = divideAndConquer(rightOfCenter, tempList);
+	    temporaryList.clear();
+	    temporaryList.addAll(rightPart);
+	    sortByYcoordinate(temporaryList);
+	    Pair closestPairRight = divideAndConquerRecursionMethod(rightPart, temporaryList);
 	 
 	    if (closestPairRight.distance < closestPair.distance)
 	      closestPair = closestPairRight;
 	 
-	    tempList.clear();
+	    temporaryList.clear();
 	    double shortestDistance =closestPair.distance;
-	    double centerX = rightOfCenter.get(0).x;
-	    for (Point point : pointsSortedByY)
-	      if (Math.abs(centerX - point.x) < shortestDistance)
-	        tempList.add(point);
+	    double centerX = rightPart.get(0).xco;
+	    for (Point point : pointsSortedByYcoordinate)
+	      if (Math.abs(centerX - point.xco) < shortestDistance)
+	    	  temporaryList.add(point);
 	 
-	    for (int i = 0; i < tempList.size() - 1; i++)
+	    for (int i = 0; i < temporaryList.size() - 1; i++)
 	    {
-	      Point point1 = tempList.get(i);
-	      for (int j = i + 1; j < tempList.size(); j++)
+	      Point point1 = temporaryList.get(i);
+	      for (int j = i + 1; j < temporaryList.size(); j++)
 	      {
-	        Point point2 = tempList.get(j);
-	        if ((point2.y - point1.y) >= shortestDistance)
+	        Point point2 = temporaryList.get(j);
+	        if ((point2.yco - point1.yco) >= shortestDistance)
 	          break;
-	        double distance = distance(point1, point2);
+	        double distance = pairdistance(point1, point2);
 	        if (distance < closestPair.distance)
 	        {
 	          closestPair.update(point1, point2, distance);
@@ -205,9 +205,10 @@ public class closestPair
     public static void main( String[] args )
     {
         System.out.println( "Starting the main method!" );
-        
+        //SparkConf conf = new SparkConf().setAppName("App").setMaster("local");
         SparkConf conf = new SparkConf().setAppName("App").setMaster("spark://10.0.0.4:7077");
-		JavaSparkContext sc = new JavaSparkContext(conf);		
+		JavaSparkContext sc = new JavaSparkContext(conf);	
+		//JavaRDD<String> lines = sc.textFile("/home/worker/FarthestPairandClosestPairTestData.csv");
 		JavaRDD<String> lines = sc.textFile("hdfs://master:54310/content/FarthestPairandClosestPairTestData.csv");
 		System.out.println("RDD created from external file...calling local function..............");
 		JavaRDD<Point> linelengths = lines.mapPartitions(new FlatMapFunction<Iterator<String>,Point>(){
@@ -235,17 +236,17 @@ public class closestPair
 				List<Coordinate> localConvexHull =  Arrays.asList(g.getCoordinates());
 				//Find local closest pairs
 				System.out.println("Sending partition to divide and conquer method");
-				Pair localClosestPair=divideAndConquer(points);
+				Pair localClosestPair=divideAndConquerBase(points);
 				System.out.println("The closest Pair in this partition is..");
-				System.out.println(" point 1 "+localClosestPair.point1.x+ " "+localClosestPair.point1.y);
-				System.out.println(" point 2 "+localClosestPair.point2.x+ " "+localClosestPair.point2.y);
+				System.out.println(" point 1 "+localClosestPair.point1.xco+ " "+localClosestPair.point1.yco);
+				System.out.println(" point 2 "+localClosestPair.point2.xco+ " "+localClosestPair.point2.yco);
 				
-				System.out.println(localConvexHull.contains(new Coordinate(localClosestPair.point1.x,localClosestPair.point1.y)));
-				System.out.println(localConvexHull.contains(new Coordinate(localClosestPair.point2.x,localClosestPair.point2.y)));
+				System.out.println(localConvexHull.contains(new Coordinate(localClosestPair.point1.xco,localClosestPair.point1.yco)));
+				System.out.println(localConvexHull.contains(new Coordinate(localClosestPair.point2.xco,localClosestPair.point2.yco)));
 				
-				if(!localConvexHull.contains(new Coordinate(localClosestPair.point1.x,localClosestPair.point1.y)))
+				if(!localConvexHull.contains(new Coordinate(localClosestPair.point1.xco,localClosestPair.point1.yco)))
 					finalPairAndCOnvexHull.add(localClosestPair.point1);
-				if(!localConvexHull.contains(new Coordinate(localClosestPair.point2.x,localClosestPair.point2.y)))	
+				if(!localConvexHull.contains(new Coordinate(localClosestPair.point2.xco,localClosestPair.point2.yco)))	
 					finalPairAndCOnvexHull.add(localClosestPair.point2);
 				int siz=localConvexHull.size();
 				for(int i=0;i<siz-1;i++)
@@ -258,6 +259,7 @@ public class closestPair
 		});
 		
 		System.out.println("Local Closest Pair Done....................................");
+		//linelengths.saveAsTextFile("/home/worker/ClosestPairPartial");
 		linelengths.saveAsTextFile("hdfs://master:54310/content/ClosestPairPartial");
 		JavaRDD<Point> ReduceList = linelengths.repartition(1);
 		JavaRDD<Point> FinalList = ReduceList.mapPartitions(new FlatMapFunction<Iterator<Point>, Point>()
@@ -275,7 +277,7 @@ public class closestPair
 					Point p = givListIter.next();
 					points.add(p);
 				}
-				Pair globalClosestPair=divideAndConquer(points);
+				Pair globalClosestPair=divideAndConquerBase(points);
 				List<Point> finalPoints=new ArrayList<Point>();
 				finalPoints.add(globalClosestPair.point1);
 				finalPoints.add(globalClosestPair.point2);
@@ -283,6 +285,7 @@ public class closestPair
 			}
 		});
 		FinalList.saveAsTextFile("hdfs://master:54310/content/ClosestPairResults");
+		//FinalList.saveAsTextFile("/home/worker/ClosestPairResults");
 		sc.close();
     }
 }
