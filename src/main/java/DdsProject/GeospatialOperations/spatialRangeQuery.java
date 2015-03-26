@@ -11,7 +11,7 @@ public class spatialRangeQuery
 {
 	public static void main( String[] args )
     {
-		//Double[] broad;
+		
 		SparkConf conf= new SparkConf().setAppName("App").setMaster(args[0]);
     	JavaSparkContext sc = new JavaSparkContext(conf);
     	JavaRDD<String> rects = sc.textFile(args[1]);
@@ -23,40 +23,6 @@ public class spatialRangeQuery
     		window[i] = Double.parseDouble(windowArray[i]);
     	}
     	
-    	
-    	//String[] window = (String[]) windowArray.toArray();
-    	//System.out.println(window[0]);
-    	/*Double[] windowArray = new Double[4];
-    	try
-    	{
-    	    //scanner = new Scanner(new File("hdfs://master:54310/content/window.csv"));
-    		reader = new BufferedReader(new FileReader("hdfs://master:54310/content/window.csv"));
-    	    String window = reader.readLine();
-    	    String[] tempArray = window.split(",");
-    	    
-    	    for(int i=0; i<4; i++)
-    	    {
-    	    	windowArray[i] = Double.parseDouble(tempArray[i]);
-    	    	System.out.println(windowArray[i]);
-    	    }
-    	    
-    	    if(windowArray[0] > windowArray[2])
-    	    {
-    	    	double swap = windowArray[0];
-    	    	windowArray[0] = windowArray[2];
-    	    	windowArray[2] = swap;
-    	    }
-    	    if(windowArray[1] > windowArray[3])
-    	    {
-    	    	double swap = windowArray[1];
-    	    	windowArray[1] = windowArray[3];
-    	    	windowArray[3] = swap;
-    	    }
-    	    
-    	}
-    	catch(Exception e){System.out.println("*************FILE NOT FOUND EXCEPTION*****************");}
-    	*///put coment here
-    	
     	Broadcast<Double[]> br = sc.broadcast(window);
     	final Double[] broad = br.value();
     	
@@ -64,9 +30,6 @@ public class spatialRangeQuery
     	JavaPairRDD<String, String> enclosed = rects.mapToPair(new PairFunction<String, String, String>()
     			{
 
-					/**
-					 * 
-					 */
 					private static final long serialVersionUID = 1L;
 
 					public Tuple2<String, String> call(String data)
@@ -115,24 +78,9 @@ public class spatialRangeQuery
     		    srdd.add(tuple._1().toString());
     		}
     	}
-    	/*try
-    	{
-    		//System.out.println(data);
-    	    File outFile = new File("/home/azureuser/workspace2/operation4/src/output.txt");
-    	    FileOutputStream is = new FileOutputStream(outFile);
-    	    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(is));
-    	    bw.write(data);
-    	    bw.close();
-    	}
-    	catch(IOException e){}
-    	*/
+    	
     	JavaRDD<String> op = sc.parallelize(srdd).repartition(1);
     	op.saveAsTextFile(args[3]);
-    	
-    	
-        //System.out.println(output.get(0));
-    	//enclosed.saveAsTextFile("output.txt");
-    	
         sc.close();
         
     }
