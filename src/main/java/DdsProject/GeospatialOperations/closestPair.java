@@ -206,9 +206,9 @@ public class closestPair
     {
         System.out.println( "Starting the main method!" );
         
-        SparkConf conf = new SparkConf().setAppName("App").setMaster("local");
+        SparkConf conf = new SparkConf().setAppName("App").setMaster("spark://10.0.0.4:7077");
 		JavaSparkContext sc = new JavaSparkContext(conf);		
-		JavaRDD<String> lines = sc.textFile("/home/worker/arealm.csv");
+		JavaRDD<String> lines = sc.textFile("hdfs://master:54310/content/FarthestPairandClosestPairTestData.csv");
 		System.out.println("RDD created from external file...calling local function..............");
 		JavaRDD<Point> linelengths = lines.mapPartitions(new FlatMapFunction<Iterator<String>,Point>(){
 		private static final long serialVersionUID = 1L;
@@ -224,8 +224,8 @@ public class closestPair
 				{
 					String strTemp = s.next();
 					String[] fields=strTemp.split(",");
-					Point x=new Point(Double.parseDouble(fields[2]),Double.parseDouble(fields[3]));
-					Coordinate coord = new Coordinate(Double.parseDouble(fields[2]),Double.parseDouble(fields[3]));
+					Point x=new Point(Double.parseDouble(fields[0]),Double.parseDouble(fields[1]));
+					Coordinate coord = new Coordinate(Double.parseDouble(fields[0]),Double.parseDouble(fields[1]));
 					ActiveCoords.add(coord);
 					points.add(x);
 				}
@@ -258,7 +258,7 @@ public class closestPair
 		});
 		
 		System.out.println("Local Closest Pair Done....................................");
-		linelengths.saveAsTextFile("/home/worker/Downloads/a1");
+		linelengths.saveAsTextFile("hdfs://master:54310/content/ClosestPairPartial");
 		JavaRDD<Point> ReduceList = linelengths.repartition(1);
 		JavaRDD<Point> FinalList = ReduceList.mapPartitions(new FlatMapFunction<Iterator<Point>, Point>()
 		{
@@ -282,8 +282,7 @@ public class closestPair
 				return finalPoints;
 			}
 		});
-		FinalList.saveAsTextFile("/home/worker/Downloads/a2");
-		System.out.println("The closest pair of points is...");
+		FinalList.saveAsTextFile("hdfs://master:54310/content/ClosestPairResults");
 		sc.close();
     }
 }

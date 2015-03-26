@@ -34,10 +34,10 @@ class LocalUnion implements FlatMapFunction<Iterator<String>, Geometry>, Seriali
 		{
 			String strTemp = s.next();
 			String[] CoordList = strTemp.split(",");
-			Double x1 = Double.parseDouble(CoordList[2]);
-			Double y1 = Double.parseDouble(CoordList[3]);
-			Double x2 = Double.parseDouble(CoordList[4]);
-			Double y2 = Double.parseDouble(CoordList[5]);
+			Double x1 = Double.parseDouble(CoordList[0]);
+			Double y1 = Double.parseDouble(CoordList[1]);
+			Double x2 = Double.parseDouble(CoordList[2]);
+			Double y2 = Double.parseDouble(CoordList[3]);
 			Geometry poly = geom.createPolygon(new Coordinate[]{new Coordinate(x1,y1),
 															   new Coordinate(x1,y2),
 																new Coordinate(x2,y2),
@@ -97,16 +97,16 @@ public class polygonUnion
 {
 	public static void main(String[] args) throws ClassNotFoundException
 	{
-		SparkConf conf = new SparkConf().setAppName("App");
+		SparkConf conf = new SparkConf().setAppName("App").setMaster("spark://10.0.0.4:7077");
 		
 		JavaSparkContext sc = new JavaSparkContext(conf);
 				
-		JavaRDD<String> lines = sc.textFile("/home/udaiarora/Downloads/arealm.csv.bz2");
+		JavaRDD<String> lines = sc.textFile("hdfs://master:54310/content/PolygonUnionTestData.csv");
 		JavaRDD<Geometry> MappedPolygons = lines.mapPartitions(new LocalUnion());
-		MappedPolygons.saveAsTextFile("/home/udaiarora/Downloads/c1");
+		MappedPolygons.saveAsTextFile("hdfs://master:54310/content/PolygonUnionPartial");
 		JavaRDD<Geometry> ReduceList = MappedPolygons.repartition(1);
 		JavaRDD<Geometry> FinalList = ReduceList.mapPartitions(new GlobalUnion());
-		FinalList.saveAsTextFile("/home/udaiarora/Downloads/c2");
+		FinalList.saveAsTextFile("hdfs://master:54310/content/PolygonUnionResults");
 		sc.close();
 	}
 }
