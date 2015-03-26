@@ -1,4 +1,5 @@
-package DdsProject.GeospatialOperations;
+
+package geospatial.convexHull;
 import org.apache.spark.api.java.*;
 import org.apache.spark.api.java.function.*;
 import org.apache.spark.SparkConf;
@@ -74,17 +75,17 @@ class globalHull implements FlatMapFunction<Iterator<Coordinate>, Coordinate>, S
 		return a;
 	}
 }
-public class farthestPairPoints
+public class App
 {
 	public static void main(String[] args) throws ClassNotFoundException
 	{
 		SparkConf conf = new SparkConf().setAppName("App");
 		JavaSparkContext sc = new JavaSparkContext(conf);
-		JavaRDD<String> lines = sc.textFile("/home/udaiarora/Downloads/Test/ct.csv");
-		JavaRDD<Coordinate> MappedPolygons = lines.mapPartitions(new LocalHull());
+		JavaRDD<String> lines = sc.textFile("/home/udaiarora/Downloads/Test/FarthestPairandClosestPairTestData.csv");
+		JavaRDD<Coordinate> MappedPolygons = lines.mapPartitions(new localHull());
 		MappedPolygons.saveAsTextFile("/home/udaiarora/Downloads/a1");
 		JavaRDD<Coordinate> ReduceList = MappedPolygons.repartition(1);
-		JavaRDD<Coordinate> FinalList = ReduceList.mapPartitions(new GlobalHull());
+		JavaRDD<Coordinate> FinalList = ReduceList.mapPartitions(new globalHull());
 		//Farthest Pair of Points
 		List<Coordinate> convexHullList=FinalList.collect();
 		Coordinate p1,p2;
@@ -95,18 +96,24 @@ public class farthestPairPoints
 		int convexHullSize=convexHullList.size();
 		for(int i=0;i<convexHullSize-1;i++)
 		{
-			double currentDistance=Math.sqrt((convexHullList.get(i).y)*(convexHullList.get(i+1).y) +(convexHullList.get(i).x)*(convexHullList.get(i+1).x));
-			if(currentDistance>maxDistance)
+			for(int j=i+1;j<convexHullSize;j++)
 			{
-				maxDistance=currentDistance;
-				p1=convexHullList.get(i);
-				p2=convexHullList.get(i+1);
+				double xsquare=(convexHullList.get(i).x-convexHullList.get(j).x)*(convexHullList.get(i).x-convexHullList.get(j).x);
+				double ysquare=(convexHullList.get(i).y-convexHullList.get(j).y)*(convexHullList.get(i).y-convexHullList.get(j).y);
+				double currentDistance=Math.sqrt(xsquare+ysquare);	
+				if(currentDistance>maxDistance)
+				{
+					maxDistance=currentDistance;
+					p1=convexHullList.get(i);
+					p2=convexHullList.get(j);
+				}
 			}
-		}
+			
+			}
 		List<Coordinate> p1p2=new ArrayList<Coordinate>();
 		p1p2.add(p1);
 		p1p2.add(p2);
-		JavaRDD<Coordinate> finalpair=sc.parallelize(p1p2);
+		JavaRDD<Coordinate> finalpair=sc.parallelize(p1p2).repartition(1);
 		finalpair.saveAsTextFile("/home/udaiarora/Downloads/a2");
 		sc.close();
 	}
