@@ -11,12 +11,13 @@ import com.vividsolutions.jts.algorithm.ConvexHull;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Coordinate;
+
+//This calcualtes the convex hulls locally
 class LocalHull implements FlatMapFunction<Iterator<String>, Coordinate>, Serializable
 {
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = 1L;
+
+	//Iterate over the points to calcualte the convex hull
 	public Iterable<Coordinate> call(Iterator<String> s)
 	{
 		List<Coordinate> ActiveCoords = new ArrayList<Coordinate>();
@@ -24,11 +25,14 @@ class LocalHull implements FlatMapFunction<Iterator<String>, Coordinate>, Serial
 		try{
 			while(s.hasNext())
 			{
+				//Read the points
 				String strTemp = s.next();
 				String[] CoordList = strTemp.split(",");
 				Double x1 = Double.parseDouble(CoordList[0]);
 				Double y1 = Double.parseDouble(CoordList[1]);
 				Coordinate coord = new Coordinate(x1,y1);
+
+				//Add the point to the list of Active Coordinates
 				ActiveCoords.add(coord);
 			}}
 		catch(Exception e)
@@ -38,23 +42,19 @@ class LocalHull implements FlatMapFunction<Iterator<String>, Coordinate>, Serial
 		ConvexHull ch = new ConvexHull(ActiveCoords.toArray(new Coordinate[ActiveCoords.size()]), geom);
 		Geometry g=ch.getConvexHull();
 		Coordinate[] c= g.getCoordinates();
-		//Convert array to arraylist here
+
+		//Convert the coordinates array to arraylist here
 		List<Coordinate> a = Arrays.asList(c);
-		// for(Coordinate e: c) {
-		// System.out.println(e.x);
-		// System.out.println(e.y);
-		// }
-		// Set<Polygon> uniqPolys = new HashSet<Polygon>(ActivePolygons);
-		// return uniqPolys;
 		return a;
 	}
 }
+
+//This calculates the global hull using the list of the local hulls.
 class GlobalHull implements FlatMapFunction<Iterator<Coordinate>, Coordinate>, Serializable
 {
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = 1L;
+
+	//Iterates over all the partitions and iteratively calcualtes the convex hull
 	public Iterable<Coordinate> call(Iterator<Coordinate> givListIter)
 	{
 		List<Coordinate> polList = new ArrayList<Coordinate>();
@@ -67,10 +67,13 @@ class GlobalHull implements FlatMapFunction<Iterator<Coordinate>, Coordinate>, S
 		ConvexHull ch = new ConvexHull(polList.toArray(new Coordinate[polList.size()]), geom);
 		Geometry g=ch.getConvexHull();
 		Coordinate[] c= g.getCoordinates();
+
+		//Convert the coordinates array to arraylist here
 		List<Coordinate> a = Arrays.asList(c);
 		return a;
 	}
 }
+
 public class convexHull
 {
 	public static void main(String[] args) throws ClassNotFoundException
