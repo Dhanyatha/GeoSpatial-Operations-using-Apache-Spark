@@ -1,4 +1,4 @@
-# Geospatial operations using Apache Spark
+## Geospatial operations using Apache Spark
 
 The project implements following geospatial operations using Apache Spark.
 
