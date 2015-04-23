@@ -1,0 +1,17 @@
+Farthest Pair Command Line Arguments
+"spark://10.0.0.4:7077" "hdfs://master:54310/content/FarthestPairandClosestPairTestData.csv" "hdfs://master:54310/content/FarthestPairPartial" "hdfs://master:54310/content/FarthestPairFinalResults"
+
+Closest Pair Command Line Arguments
+"spark://10.0.0.4:7077" "hdfs://master:54310/content/FarthestPairandClosestPairTestData.csv" "hdfs://master:54310/content/ClosestPairPartial" "hdfs://master:54310/content/ClosestPairResults"
+
+Convex Hull CLA
+"spark://10.0.0.4:7077" "hdfs://master:54310/content/ConvexHullTestData.csv" "hdfs://master:54310/content/ConvexHullPartialResults" "hdfs://master:54310/content/ConvexHullResults"
+
+Polygon Union CLA
+"spark://10.0.0.4:7077" "hdfs://master:54310/content/PolygonUnionTestData.csv" "hdfs://master:54310/content/PolygonUnionPartial" "hdfs://master:54310/content/PolygonUnionResults"
+
+Spatial Join CLA
+"spark://10.0.0.4:7077" "hdfs://master:54310/content/file1.csv" "hdfs://master:54310/content/file2.csv" "hdfs://master:54310/content/JoinQueryResults"
+
+Spatial Range CLA
+"spark://10.0.0.4:7077" "hdfs://master:54310/content/RangeQueryTestData.csv" "hdfs://master:54310/content/rectangles.csv" "hdfs://master:54310/content/RangeQueryResults"
